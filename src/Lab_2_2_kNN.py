@@ -50,15 +50,9 @@ class knn:
             p (int, optional): The degree of the Minkowski distance. Defaults to 2.
         """
         if X_train.shape[0] != y_train.shape[0]:
-            raise ValueError("X_train and y_train must have the same number of rows.")
-        if not isinstance(k, int):
-            raise ValueError("k must be a positive integer.")
-        if not isinstance(p, int):
-            raise ValueError("p must be a positive integer.")
-        if k <= 0:
-            raise ValueError("k must be a positive integer.")
-        if p <= 0:
-            raise ValueError("p must be a positive integer.")
+            raise ValueError("Length of X_train and y_train must be equal.")
+        if (not isinstance(k, int)) or (not isinstance(p, int)) or (k <= 0) or (p <= 0):
+            raise ValueError("k and p must be positive integers.")
 
         self.x_train = X_train
         self.y_train = y_train
