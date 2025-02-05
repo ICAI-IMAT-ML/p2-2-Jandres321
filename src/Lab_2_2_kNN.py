@@ -18,8 +18,7 @@ def minkowski_distance(a, b, p=2):
     Returns:
         float: Minkowski distance between arrays a and b.
     """
-
-    # TODO
+    return np.sum(np.abs(a - b) ** p) ** (1 / p)
 
 
 # k-Nearest Neighbors Model
@@ -50,7 +49,22 @@ class knn:
             k (int, optional): Number of neighbors to use. Defaults to 5.
             p (int, optional): The degree of the Minkowski distance. Defaults to 2.
         """
-        # TODO
+        if X_train.shape[0] != y_train.shape[0]:
+            raise ValueError("X_train and y_train must have the same number of rows.")
+        if not isinstance(k, int):
+            raise ValueError("k must be a positive integer.")
+        if not isinstance(p, int):
+            raise ValueError("p must be a positive integer.")
+        if k <= 0:
+            raise ValueError("k must be a positive integer.")
+        if p <= 0:
+            raise ValueError("p must be a positive integer.")
+
+        self.x_train = X_train
+        self.y_train = y_train
+        self.k = k
+        self.p = p
+
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -62,7 +76,22 @@ class knn:
         Returns:
             np.ndarray: Predicted class labels.
         """
-        # TODO
+        predictions = []
+        for sample in X:
+            # Compute distances from sample to all training points
+            distances = np.array([minkowski_distance(sample, x, self.p) for x in self.x_train])
+            
+            # Get indices of k nearest neighbors
+            k_nearest_indices = np.argsort(distances)[:self.k]
+            
+            # Get labels of k nearest neighbors 
+            k_nearest_labels = self.y_train[k_nearest_indices]
+            
+            # Predict most common label among neighbors
+            prediction = np.bincount(k_nearest_labels).argmax()
+            predictions.append(prediction)
+
+        return np.array(predictions)
 
     def predict_proba(self, X):
         """
@@ -77,7 +106,26 @@ class knn:
         Returns:
             np.ndarray: Predicted class probabilities.
         """
-        # TODO
+        predictions_proba = []
+        for sample in X:
+            # Compute distances from sample to all training points
+            distances = np.array([minkowski_distance(sample, x, self.p) for x in self.x_train])
+            
+            # Get indices of k nearest neighbors
+            k_nearest_indices = np.argsort(distances)[:self.k]
+            
+            # Get labels of k nearest neighbors
+            k_nearest_labels = self.y_train[k_nearest_indices]
+            
+            # Calculate probability for each class
+            unique_labels = np.unique(self.y_train)
+            probs = np.zeros(len(unique_labels))
+            for i, label in enumerate(unique_labels):
+                probs[i] = np.sum(k_nearest_labels == label) / self.k
+            
+            predictions_proba.append(probs)
+
+        return np.array(predictions_proba)
 
     def compute_distances(self, point: np.ndarray) -> np.ndarray:
         """Compute distance from a point to every point in the training dataset
@@ -88,7 +136,7 @@ class knn:
         Returns:
             np.ndarray: distance from point to each point in the training dataset.
         """
-        # TODO
+        return np.array([minkowski_distance(point, x, self.p) for x in self.x_train])
 
     def get_k_nearest_neighbors(self, distances: np.ndarray) -> np.ndarray:
         """Get the k nearest neighbors indices given the distances matrix from a point.
@@ -102,7 +150,8 @@ class knn:
         Hint:
             You might want to check the np.argsort function.
         """
-        # TODO
+        
+        return np.argsort(distances)[:self.k]
 
     def most_common_label(self, knn_labels: np.ndarray) -> int:
         """Obtain the most common label from the labels of the k nearest neighbors
@@ -113,7 +162,11 @@ class knn:
         Returns:
             int: most common label
         """
-        # TODO
+        # Count occurrences of each label
+        label_counts = np.bincount(knn_labels)
+        
+        # Return label with highest count
+        return np.argmax(label_counts)
 
     def __str__(self):
         """
