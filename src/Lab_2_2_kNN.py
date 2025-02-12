@@ -439,7 +439,7 @@ def plot_roc_curve(y_true, y_probs, positive_label):
     y_true_mapped = np.array([1 if label == positive_label else 0 for label in y_true])
 
     # Initialize lists for TPR and FPR
-    thresholds = np.sort(np.unique(y_probs))
+    thresholds = np.linspace(0, 1, 11)
     fpr = []
     tpr = []
 
